@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -ansi -Wall
+CFLAGS = -ansi -pedantic -Wall
 INSTALL = install
 bindir = /usr/local/bin
 
