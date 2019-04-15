@@ -24,7 +24,7 @@ static char* readFile(const char* filename)
         return NULL;
     }
 
-    fread(buf, sizeof(char), size, file);
+    size = fread(buf, sizeof(char), size, file);
     buf[size] = '\0';
 
     fclose(file);
