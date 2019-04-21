@@ -32,12 +32,17 @@ static char* readFile(const char* filename)
     return buf;
 }
 
-int main(int argc, char *argv[])
+static void interpret(const char* instructions)
+{
+    /* TODO */
+}
+
+int main(int argc, char* argv[])
 {
     int i;
 
     if (argc == 1) {
-        printf("Usage: %s FILE...\n", argv[0]);
+        fprintf(stderr, "Usage: %s FILE...\n", argv[0]);
         return EXIT_FAILURE;
     }
 
@@ -47,7 +52,7 @@ int main(int argc, char *argv[])
         if (buf == NULL)
             continue;
 
-        printf("%s\n", buf);
+        interpret(buf);
 
         free(buf);
     }
