@@ -1,6 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef struct context
+{
+    const char* instructions;
+    size_t instrIndex;
+    unsigned char* memory;
+    size_t memorySize;
+    size_t memoryIndex;
+} Context;
+
 static char* readFile(const char* filename)
 {
     char* buf;
@@ -32,13 +41,58 @@ static char* readFile(const char* filename)
     return buf;
 }
 
-static void interpret(const char* instructions)
+static void interpret(Context* ctx)
 {
-    /* TODO */
+    char current;
+    size_t jump;
+
+    while ((current = ctx->instructions[ctx->instrIndex])) {
+        switch (current) {
+            case '>':
+                ++ctx->memoryIndex;
+                break;
+
+            case '<':
+                --ctx->memoryIndex;
+                break;
+
+            case '+':
+                ++ctx->memory[ctx->memoryIndex];
+                break;
+
+            case '-':
+                --ctx->memory[ctx->memoryIndex];
+                break;
+
+            case '.':
+                putchar(ctx->memory[ctx->memoryIndex]);
+                break;
+
+            case ',':
+                ctx->memory[ctx->memoryIndex] = getchar();
+                break;
+
+            case '[':
+                jump = ++ctx->instrIndex;
+
+                while (ctx->memory[ctx->memoryIndex]) {
+                    ctx->instrIndex = jump;
+                    interpret(ctx);
+                }
+
+                break;
+
+            case ']':
+                return;
+        }
+
+        ++ctx->instrIndex;
+    }
 }
 
 int main(int argc, char* argv[])
 {
+    Context ctx;
     int i;
 
     if (argc == 1) {
@@ -52,8 +106,16 @@ int main(int argc, char* argv[])
         if (buf == NULL)
             continue;
 
-        interpret(buf);
+        ctx.instructions = buf;
+        ctx.instrIndex = 0;
+        /* TODO : getopt */
+        #define MEMORY_SIZE 30000
+        ctx.memory = calloc(MEMORY_SIZE, sizeof(unsigned char));
+        ctx.memorySize = MEMORY_SIZE;
+        ctx.memoryIndex = 0;
 
+        interpret(&ctx);
+free(ctx.memory);
         free(buf);
     }
 
