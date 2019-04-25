@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+
+#define DEFAULT_MEMSIZE 30000
 
 typedef struct context
 {
@@ -125,22 +128,37 @@ static void interpret(Context* ctx)
     }
 }
 
-#define MEMORY_SIZE 30000
+static void usage(const char* name)
+{
+    fprintf(stderr, "Usage: %s [-s memsize] FILE...\n", name);
+}
 
 int main(int argc, char* argv[])
 {
-    int i;
+    int memorySize = DEFAULT_MEMSIZE;
+    int opt, i;
 
-    if (argc == 1) {
-        fprintf(stderr, "Usage: %s FILE...\n", argv[0]);
+    while ((opt = getopt(argc, argv, "s:")) != -1) {
+        switch (opt) {
+            case 's':
+                memorySize = atoi(optarg);
+                break;
+
+            default:
+                usage(argv[0]);
+                return EXIT_FAILURE;
+        }
+    }
+
+    if (optind >= argc) {
+        usage(argv[0]);
         return EXIT_FAILURE;
     }
 
-    for (i = 1; i < argc; ++i) {
+    for (i = optind; i < argc; ++i) {
         Context ctx;
 
-        /* TODO : getopt */
-        if (init(&ctx, argv[i], MEMORY_SIZE) == EXIT_FAILURE)
+        if (init(&ctx, argv[i], memorySize) == EXIT_FAILURE)
             continue;
 
         interpret(&ctx);

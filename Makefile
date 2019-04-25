@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -ansi -pedantic -Wall
+CPPFLAGS = -D_XOPEN_SOURCE
 INSTALL = install
 bindir = /usr/local/bin
 

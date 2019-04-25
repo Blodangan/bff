@@ -12,5 +12,5 @@ $ make install
 ## Usage
 
 ```bash
-$ bff FILE...
+$ bff [-s memsize] FILE...
 ```
