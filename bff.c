@@ -44,7 +44,8 @@ static char* readFile(const char* filename)
 static void interpret(Context* ctx)
 {
     char current;
-    size_t jump;
+    size_t loopStart, loopEnd;
+    int count;
 
     while ((current = ctx->instructions[ctx->instrIndex])) {
         switch (current) {
@@ -73,13 +74,19 @@ static void interpret(Context* ctx)
                 break;
 
             case '[':
-                jump = ++ctx->instrIndex;
+                loopStart = ++ctx->instrIndex;
 
-                while (ctx->memory[ctx->memoryIndex]) {
-                    ctx->instrIndex = jump;
-                    interpret(ctx);
+                for (count = 1, loopEnd = loopStart; count; ++loopEnd) {
+                    if (ctx->instructions[loopEnd] == '[') ++count;
+                    else if (ctx->instructions[loopEnd] == ']') --count;
                 }
 
+                while (ctx->memory[ctx->memoryIndex]) {
+                    interpret(ctx);
+                    ctx->instrIndex = loopStart;
+                }
+
+                ctx->instrIndex = loopEnd - 1;
                 break;
 
             case ']':
