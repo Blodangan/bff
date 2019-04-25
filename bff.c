@@ -3,7 +3,7 @@
 
 typedef struct context
 {
-    const char* instructions;
+    char* instructions;
     size_t instrIndex;
     unsigned char* memory;
     size_t memorySize;
@@ -39,6 +39,34 @@ static char* readFile(const char* filename)
     fclose(file);
 
     return buf;
+}
+
+static int init(Context* ctx, const char* filename, size_t memorySize)
+{
+    ctx->instructions = readFile(filename);
+
+    if (ctx->instructions == NULL)
+        return EXIT_FAILURE;
+
+    ctx->memory = calloc(memorySize, sizeof(unsigned char));
+
+    if (ctx->memory == NULL) {
+        free(ctx->instructions);
+        perror("calloc");
+        return EXIT_FAILURE;
+    }
+
+    ctx->instrIndex = 0;
+    ctx->memorySize = memorySize;
+    ctx->memoryIndex = 0;
+
+    return EXIT_SUCCESS;
+}
+
+static void cleanup(Context* ctx)
+{
+    free(ctx->memory);
+    free(ctx->instructions);
 }
 
 static void interpret(Context* ctx)
@@ -97,9 +125,10 @@ static void interpret(Context* ctx)
     }
 }
 
+#define MEMORY_SIZE 30000
+
 int main(int argc, char* argv[])
 {
-    Context ctx;
     int i;
 
     if (argc == 1) {
@@ -108,22 +137,15 @@ int main(int argc, char* argv[])
     }
 
     for (i = 1; i < argc; ++i) {
-        char* buf = readFile(argv[i]);
+        Context ctx;
 
-        if (buf == NULL)
+        /* TODO : getopt */
+        if (init(&ctx, argv[i], MEMORY_SIZE) == EXIT_FAILURE)
             continue;
 
-        ctx.instructions = buf;
-        ctx.instrIndex = 0;
-        /* TODO : getopt */
-        #define MEMORY_SIZE 30000
-        ctx.memory = calloc(MEMORY_SIZE, sizeof(unsigned char));
-        ctx.memorySize = MEMORY_SIZE;
-        ctx.memoryIndex = 0;
-
         interpret(&ctx);
-free(ctx.memory);
-        free(buf);
+
+        cleanup(&ctx);
     }
 
     return EXIT_SUCCESS;
