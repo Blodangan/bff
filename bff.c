@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #define DEFAULT_MEMSIZE 30000
@@ -128,15 +129,19 @@ static void interpret(Context* ctx)
     }
 }
 
-static void usage(const char* name)
+static void usage(const char* programName)
 {
-    fprintf(stderr, "Usage: %s [-s memsize] FILE...\n", name);
+    fprintf(stderr, "Usage: %s [-s memsize] FILE...\n", programName);
 }
 
 int main(int argc, char* argv[])
 {
-    int memorySize = DEFAULT_MEMSIZE;
     int opt, i;
+    char* programName;
+    int memorySize = DEFAULT_MEMSIZE;
+    char* last = strrchr(argv[0], '/');
+
+    programName = (last != NULL) ? ++last : argv[0];
 
     while ((opt = getopt(argc, argv, "s:")) != -1) {
         switch (opt) {
@@ -145,13 +150,13 @@ int main(int argc, char* argv[])
                 break;
 
             default:
-                usage(argv[0]);
+                usage(programName);
                 return EXIT_FAILURE;
         }
     }
 
     if (optind >= argc) {
-        usage(argv[0]);
+        usage(programName);
         return EXIT_FAILURE;
     }
 
