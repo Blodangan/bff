@@ -129,9 +129,18 @@ static void interpret(Context* ctx)
     }
 }
 
-static void usage(const char* programName)
+static void usage(const char* programName, int status)
 {
-    fprintf(stderr, "Usage: %s [-s memsize] FILE...\n", programName);
+    if (status == EXIT_SUCCESS) {
+        printf("Usage: %s [-h] [-s memsize] FILE...\n"
+            "\t-h: Display this help and exit\n"
+            "\t-s memsize: Use memsize bytes of memory\n", programName);
+    } else {
+        fprintf(stderr, "Usage: %s [-h] [-s memsize] FILE...\n"
+            "Try '%s -h' for more information.\n", programName, programName);
+    }
+
+    exit(status);
 }
 
 int main(int argc, char* argv[])
@@ -143,22 +152,22 @@ int main(int argc, char* argv[])
 
     programName = (last != NULL) ? ++last : argv[0];
 
-    while ((opt = getopt(argc, argv, "s:")) != -1) {
+    while ((opt = getopt(argc, argv, "hs:")) != -1) {
         switch (opt) {
+            case 'h':
+                usage(programName, EXIT_SUCCESS);
+
             case 's':
                 memorySize = atoi(optarg);
                 break;
 
             default:
-                usage(programName);
-                return EXIT_FAILURE;
+                usage(programName, EXIT_FAILURE);
         }
     }
 
-    if (optind >= argc) {
-        usage(programName);
-        return EXIT_FAILURE;
-    }
+    if (optind >= argc || memorySize <= 0)
+        usage(programName, EXIT_FAILURE);
 
     for (i = optind; i < argc; ++i) {
         Context ctx;
