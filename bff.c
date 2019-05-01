@@ -33,7 +33,7 @@ static char* readFile(const char* filename)
 
     if (buf == NULL) {
         fclose(file);
-        perror("malloc");
+        perror("readFile - malloc");
         return NULL;
     }
 
@@ -56,7 +56,7 @@ static int init(Context* ctx, const char* filename, size_t memorySize)
 
     if (ctx->memory == NULL) {
         free(ctx->instructions);
-        perror("calloc");
+        perror("init - calloc");
         return EXIT_FAILURE;
     }
 
