@@ -3,6 +3,10 @@
 #include <string.h>
 #include <unistd.h>
 
+#define BFF_VERSION_MAJOR 0
+#define BFF_VERSION_MINOR 1
+#define BFF_VERSION_PATCH 0
+
 #define DEFAULT_MEMSIZE 30000
 
 typedef struct context
@@ -132,15 +136,26 @@ static void interpret(Context* ctx)
 static void usage(const char* programName, int status)
 {
     if (status == EXIT_SUCCESS) {
-        printf("Usage: %s [-h] [-s memsize] FILE...\n"
+        printf("Usage: %s [-hv] [-s memsize] FILE...\n"
             "\t-h: Display this help and exit\n"
-            "\t-s memsize: Use memsize bytes of memory\n", programName);
+            "\t-s memsize: Use memsize bytes of memory\n"
+            "\t-v: Display version information and exit\n", programName);
     } else {
-        fprintf(stderr, "Usage: %s [-h] [-s memsize] FILE...\n"
+        fprintf(stderr, "Usage: %s [-hv] [-s memsize] FILE...\n"
             "Try '%s -h' for more information.\n", programName, programName);
     }
 
     exit(status);
+}
+
+static void version(const char* programName)
+{
+    printf("%s (Brainfuck Forever) %d.%d.%d\n"
+        "Copyright (c) 2019 Ulysse RIGAUT.\n"
+        "Released under the MIT License.\n",
+        programName, BFF_VERSION_MAJOR, BFF_VERSION_MINOR, BFF_VERSION_PATCH);
+
+    exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char* argv[])
@@ -152,7 +167,7 @@ int main(int argc, char* argv[])
 
     programName = (last != NULL) ? ++last : argv[0];
 
-    while ((opt = getopt(argc, argv, "hs:")) != -1) {
+    while ((opt = getopt(argc, argv, "hs:v")) != -1) {
         switch (opt) {
             case 'h':
                 usage(programName, EXIT_SUCCESS);
@@ -160,6 +175,9 @@ int main(int argc, char* argv[])
             case 's':
                 memorySize = atoi(optarg);
                 break;
+
+            case 'v':
+                version(programName);
 
             default:
                 usage(programName, EXIT_FAILURE);

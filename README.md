@@ -12,7 +12,7 @@ $ make install
 ## Usage
 
 ```bash
-$ bff [-h] [-s memsize] FILE...
+$ bff [-hv] [-s memsize] FILE...
 ```
 
 ## License
